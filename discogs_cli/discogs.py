@@ -49,8 +49,8 @@ class Discogs(object):
 
         :type label: str
         :param label: A string representing the label value."""
-        return click.style(label, fg=Discogs.LABEL_COLOUR)
-
+#        return click.style(label, fg=Discogs.LABEL_COLOUR)
+        return label
     def cid(self, discogs_id):
         """Colour style for discogs id field.
 
@@ -59,8 +59,8 @@ class Discogs(object):
 
         :rtype: str
         :return: ANSI formatted string containing a discogs id."""
-        return click.style(discogs_id, fg=Discogs.ID_COLOUR)
-
+#        return click.style(discogs_id, fg=Discogs.ID_COLOUR)
+        return discogs_id
     def _artists(self, artists):
         """Formats the artist name and database id.
 
@@ -95,7 +95,7 @@ class Discogs(object):
         LEFT = 4
         RIGHT = 3
         return (
-          ' -- [ ' + click.style(title, fg=Discogs.LABEL_COLOUR) + ' ] {line}'.
+          ' -- [ ' + title + ' ] {line}'.
                 format(title=title, line='-' * (MAX - 4 - len(title) - RIGHT)))
 
     def _page_artists(self, artists, page=1, end=1):
@@ -107,7 +107,7 @@ class Discogs(object):
         while page <= end:
             for r in artists.page(page):
                 click.echo('{artist} [{id}]'.format(artist=r.name,
-                        id=self.cid(str(r.id))), color=True)
+                        id=self.cid(str(r.id))), color=False)
             page += 1
 
     def _page_labels(self, labels, page=1, end=1):
@@ -125,7 +125,7 @@ class Discogs(object):
                 year = getattr(r, 'year', 'MASTER')
                 click.echo('{year}\t{artist}{title} [{id}]'.format(year=year,
                 title=r.title, id=self.cid(str(r.id)), artist=artist),
-                color=True)
+                color=False)
             page += 1
 
 
@@ -152,7 +152,7 @@ class Search(Discogs):
         out = []
         out.append(self._separator('{n} {qt}(s) matching "{q}"').format(
             q=self.q, qt=self.q_type, n=self.discogs.count))
-        click.echo('\n'.join(out), color=True)
+        click.echo('\n'.join(out), color=False)
 
         if self.q_type == 'release':
             self._page_releases(self.discogs, end=self.discogs.pages)
@@ -191,7 +191,7 @@ class Label(Discogs):
         out.append('{url}'.format(url='\n'.join(self.discogs.data.get('urls',
             ['None']))))
         out.append(self._separator('Releases'))
-        click.echo('\n'.join(out), color=True)
+        click.echo('\n'.join(out), color=False)
 
         self._page_releases(self.discogs.releases, page=1, end=
                             self.discogs.releases.pages, show_artist=True)
@@ -231,7 +231,7 @@ class Artist(Discogs):
         out.append(self._separator('Profile'))
         out.append(self.discogs.data.get('profile', 'None.'))
         out.append(self._separator('Releases'))
-        click.echo('\n'.join(out), color=True)
+        click.echo('\n'.join(out), color=False)
         self._page_releases(self.discogs.releases, page=1, end=
                             self.discogs.releases.pages)
 
@@ -252,7 +252,7 @@ class Master(Discogs):
 
         out.append(self.cheader(self.discogs.title))
         out.append(self._separator('Versions'))
-        click.echo('\n'.join(out), color=True)
+        click.echo('\n'.join(out), color=False)
         self._page_releases(self.discogs.versions, page=1, end=
                             self.discogs.versions.pages)
 
@@ -290,7 +290,7 @@ class Release(Discogs):
             self._artists(self.discogs.data['artists'])),
             title=self.discogs.data['title']))
 
-        labels = ['{label} ({cat}) [{id}]'.format(label=x.get('name'), cat=
+        labels = ['{label}|{cat}|{id}'.format(label=x.get('name'), cat=
             x.get('catno'), id=self.cid(str(x.get('id'))))
             for x in self.discogs.data['labels']]
         out.append(self.clabel('Label:') + '    {labels}'.format(
@@ -320,4 +320,4 @@ class Release(Discogs):
 
         out.append(self._separator('Notes'))
         out.append(self.discogs.data.get('notes', 'None.'))
-        click.echo('\n'.join(out), color=True)
+        click.echo('\n'.join(out), color=False)
